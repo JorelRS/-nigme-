@@ -4,35 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Énigmes de Gotham par le Riddler</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #000;
+            font-family: 'Roboto', sans-serif;
+            background-color: #0c0c0c;
             color: #fff;
-            text-align: center;
-            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .container {
+            text-align: center;
+            background-color: #1a1a1a;
+            border: 1px solid #4CAF50;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            max-width: 90%;
+            position: relative;
+            overflow: hidden;
+        }
+        .container::before {
+            content: "?";
+            font-size: 300px;
+            color: rgba(75, 192, 192, 0.1); /* Vert clair translucide */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
         }
         .riddler-enigma {
-            border: 2px solid #8B008B; /* Violet foncé pour le Riddler */
-            padding: 20px;
-            margin: 50px auto; /* Centré horizontalement */
-            max-width: 80%;
-            background-color: #222;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
             position: relative;
-            text-align: left; /* Alignement du texte à gauche */
+            z-index: 1;
         }
         .riddler-text {
-            font-size: 20px;
-            line-height: 1.6;
+            font-size: 18px;
+            line-height: 1.8;
             margin-bottom: 20px;
         }
         .riddler-hint {
             font-style: italic;
             font-size: 16px;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
         .riddler-signature {
             margin-top: 20px;
@@ -40,28 +59,22 @@
             color: #888;
         }
         .question-mark {
-            font-family: 'Courier New', Courier, monospace; /* Police d'écriture différente */
-            font-size: 60px; /* Plus grand */
-            color: #8B008B; /* Violet foncé */
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 50px;
+            color: #4CAF50;
             position: absolute;
-            animation: float 3s infinite;
+            animation: color-change 3s infinite;
             cursor: pointer;
             transition: transform 0.2s ease-in-out;
-            z-index: 10; /* Assure que les points d'interrogation sont au-dessus du texte */
+            z-index: 2;
         }
         .question-mark:hover {
             transform: scale(1.2);
         }
-        @keyframes float {
-            0% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-            100% {
-                transform: translateY(0);
-            }
+        @keyframes color-change {
+            0% { color: #4CAF50; }
+            50% { color: #8B008B; }
+            100% { color: #4CAF50; }
         }
         /* Disposition des points d'interrogation */
         .question-mark1 { top: 20%; left: 20%; }
@@ -71,23 +84,14 @@
         .hidden {
             display: none;
         }
-        /* Pixel art du point d'interrogation en fond */
-        .background-question-mark {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: -1; /* Derrière tout le contenu */
-            opacity: 0.2; /* Transparence */
-        }
         /* Crédits */
         .credits {
-            position: fixed;
+            position: absolute;
             bottom: 10px;
             right: 10px;
             font-size: 12px;
             color: #888;
-            z-index: 10; /* Assure que les crédits sont au-dessus du contenu principal */
+            z-index: 2;
         }
         /* Formulaire de réponse */
         .answer-form {
@@ -96,7 +100,7 @@
         .answer-input {
             padding: 10px;
             font-size: 16px;
-            border: 2px solid #4CAF50; /* Vert */
+            border: 2px solid #4CAF50;
             background-color: #333;
             color: #fff;
             border-radius: 5px;
@@ -107,63 +111,61 @@
         .submit-button {
             padding: 10px 20px;
             font-size: 16px;
-            background-color: #4CAF50; /* Vert */
+            background-color: #4CAF50;
             color: #fff;
             border: none;
             cursor: pointer;
             border-radius: 5px;
+            transition: background-color 0.3s;
         }
         .submit-button:hover {
-            background-color: #45a049; /* Vert plus foncé au survol */
+            background-color: #45a049;
         }
         .result {
             margin-top: 20px;
             font-size: 18px;
         }
         .correct {
-            color: #4CAF50; /* Vert */
+            color: #4CAF50;
         }
         .incorrect {
-            color: #FF6347; /* Rouge */
+            color: #FF6347;
         }
     </style>
 </head>
 <body>
-    <!-- Pixel art du point d'interrogation en fond -->
-    <div class="background-question-mark">
-        <pre style="color: #fff; font-size: 80px; line-height: 1;">
-  ?   
-?  ?
- ??
-    </pre>
-    </div>
-
-    <div class="riddler-enigma">
-        <div class="riddler-text">
-            <p class="part1">Dans les rues sombres de Gotham, je rôde, traquant le crime et défiant le chaos.</p>
-            <p class="part2 hidden">Ma cape s'envole dans le vent nocturne, symbole d'espoir pour les innocents et de terreur pour les criminels.</p>
-            <p class="part3">Mon repaire est un sanctuaire secret, où la justice prend forme dans l'ombre.</p>
-            <p class="part4 hidden">Je suis le gardien de la nuit, une chauve-souris silencieuse prête à répondre à l'appel du danger.</p>
-            <p class="part5 hidden">Qui suis-je, dans le cœur de Gotham, prêt à affronter les périls qui menacent cette ville? Trouve ma véritable identité.</p>
+    <div class="container">
+        <div class="riddler-enigma">
+            <div class="riddler-text">
+                <p class="part1">Dans les rues sombres de Gotham, je rôde, traquant le crime et défiant le chaos.</p>
+                <p class="part2 hidden">Ma cape s'envole dans le vent nocturne, symbole d'espoir pour les innocents et de terreur pour les criminels.</p>
+                <p class="part3">Mon repaire est un sanctuaire secret, où la justice prend forme dans l'ombre.</p>
+                <p class="part4 hidden">Je suis le gardien de la nuit, une chauve-souris silencieuse prête à répondre à l'appel du danger.</p>
+                <p class="part5 hidden">Qui suis-je, dans le cœur de Gotham, prêt à affronter les périls qui menacent cette ville? Trouve ma véritable identité.</p>
+            </div>
+            <div class="riddler-hint">Cherche les indices cachés dans les ombres de cette énigme...</div>
+            <div class="riddler-signature">- Le Riddler</div>
         </div>
-        <div class="riddler-hint">Cherche les indices cachés dans les ombres de cette énigme...</div>
-        <div class="riddler-signature">- Le Riddler</div>
+
+        <!-- Points d'interrogation interactifs -->
+        <div class="question-mark question-mark1" onclick="revealPart('.part2')">?</div>
+        <div class="question-mark question-mark2" onclick="revealPart('.part4')">?</div>
+        <div class="question-mark question-mark3" onclick="revealPart('.part5')">?</div>
+
+        <!-- Formulaire de réponse -->
+        <form class="answer-form">
+            <input type="text" class="answer-input" id="answer" placeholder="Votre réponse...">
+            <button type="button" class="submit-button" onclick="checkAnswer()">Vérifier</button>
+        </form>
+
+        <!-- Résultat de la vérification -->
+        <div class="result" id="result"></div>
+
+        <!-- Crédits -->
+        <div class="credits">
+            <p>TM & © DC Comics. All rights reserved.</p>
+        </div>
     </div>
-
-    <!-- Points d'interrogation interactifs -->
-    <div class="question-mark question-mark1" onclick="revealPart('.part2')">?</div>
-    <div class="question-mark question-mark2" onclick="revealPart('.part4')">?</div>
-    <div class="question-mark question-mark3" onclick="revealPart('.part5')">?</div>
-    <!-- Ajoutez d'autres points d'interrogation avec des classes similaires selon votre mise en page -->
-
-    <!-- Formulaire de réponse -->
-    <form class="answer-form">
-        <input type="text" class="answer-input" id="answer" placeholder="Votre réponse...">
-        <button type="button" class="submit-button" onclick="checkAnswer()">Vérifier</button>
-    </form>
-
-    <!-- Résultat de la vérification -->
-    <div class="result" id="result"></div>
 
     <!-- Script pour révéler les parties de l'énigme -->
     <script>
@@ -181,13 +183,13 @@
 
             if (answer === solution) {
                 document.getElementById('result').innerHTML = "Correct ! Vous avez résolu l'énigme.";
+                document.getElementById('result').classList.remove('incorrect');
                 document.getElementById('result').classList.add('correct');
             } else {
                 document.getElementById('result').innerHTML = "Incorrect. Réessayez !";
+                document.getElementById('result').classList.remove('correct');
                 document.getElementById('result').classList.add('incorrect');
             }
         }
     </script>
-    
-    <!-- Crédits -->
-    <div class="credits">
+</body>
